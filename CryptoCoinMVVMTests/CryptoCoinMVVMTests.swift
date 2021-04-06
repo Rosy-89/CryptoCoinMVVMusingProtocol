@@ -29,5 +29,29 @@ class CryptoCoinMVVMTests: XCTestCase {
             // Put the code you want to measure the time of here.
         }
     }
+    
+    func test_GetData(){
+        
+        let expectation = XCTestExpectation(description: "Post has been completed")
+        let url = URL(string: "https://api.coinranking.com/v1/public/coins")!
+        var coins = [Coin]()
+        
+        URLSession.shared.dataTask(with: url){data, response, error in
+            
+            guard let data = data, error == nil else{
+                XCTFail()
+                return
+            }
+            
+            let response = try! JSONDecoder().decode(CryptoDataContainer.self, from: data)
+            coins = response.data.coins
+            
+            expectation.fulfill()
+            
+        }.resume()
+        
+        wait(for: [expectation], timeout: 2.0)
+        XCTAssert(coins.count > 0)
+    }
 
 }
